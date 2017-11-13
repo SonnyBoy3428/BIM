@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
@@ -10,6 +9,7 @@ import static org.apache.commons.collections4.CollectionUtils.permutations;
  * Klasse zum loesen des Double Digest Problems
  */
 public class DoubleDigestProblem{
+    //<editor-fold desc="Felder und Listen">
     /**
      * Scanner für Benutzereingaben an der Tastatur
      */
@@ -40,44 +40,52 @@ public class DoubleDigestProblem{
      */
     private static ArrayList<List<Integer>> gueltigeKombisA = new ArrayList<List<Integer>>();
     private static ArrayList<List<Integer>> gueltigeKombisB = new ArrayList<List<Integer>>();
-    private static  ArrayList<List<Integer>> gueltigeSchnittpositionenA = new ArrayList<List<Integer>>();
-    private static ArrayList<List<Integer>> gueltigeSchnittpositionenB = new ArrayList<List<Integer>>();
-    private static ArrayList<List<Integer>> gueltigeSchnittpositionenAB = new ArrayList<List<Integer>>();
+    private static  ArrayList<List<Integer>> gueltigeSchnittpositionenA = new ArrayList<List<Integer>>(); // Vielleicht nicht noetig
+    private static ArrayList<List<Integer>> gueltigeSchnittpositionenB = new ArrayList<List<Integer>>(); // Vielleicht nicht noetig
+    private static ArrayList<List<Integer>> gueltigeSchnittpositionenAB = new ArrayList<List<Integer>>(); // Vielleicht nicht noetig
 
     /**
      * Listen fuer ungueltige Fragmentreihenfolgen und Schnittpositionen
      */
     private static ArrayList<List<Integer>> ungueltigeKombisA = new ArrayList<List<Integer>>();
     private static ArrayList<List<Integer>> ungueltigeKombisB = new ArrayList<List<Integer>>();
-    private static ArrayList<List<Integer>> ungueltigeSchnittpositionenA = new ArrayList<List<Integer>>();
-    private static ArrayList<List<Integer>> ungueltigeSchnittpositionenB = new ArrayList<List<Integer>>();
-    private static ArrayList<List<Integer>> ungueltigeSchnittpositionenAB = new ArrayList<List<Integer>>();
+    private static ArrayList<List<Integer>> ungueltigeSchnittpositionenA = new ArrayList<List<Integer>>(); // Vielleicht nicht noetig
+    private static ArrayList<List<Integer>> ungueltigeSchnittpositionenB = new ArrayList<List<Integer>>(); // Vielleicht nicht noetig
+    private static ArrayList<List<Integer>> ungueltigeSchnittpositionenAB = new ArrayList<List<Integer>>(); // Vielleicht nicht noetig
+    //</editor-fold>
 
     /**
-     * Befuellt eine Fragmentliste mit Benutzereingaben.
+     * Hauptprogramm
      *
-     * @param fragmentListe Fragmentliste die befuellt werden soll
-     * @param listenName Name der Fragmentliste
+     * @param args Kommandozeilenargumente
      */
-    public static void befuelleListenMitBenutzereingaben(List<Integer> fragmentListe, String listenName){
-        System.out.println("\nWie viele Fragmente für Liste " + listenName + "?");
-        int listenLaenge = in.nextInt();
+    public static void main(String[] args) throws Exception {
+        //sortiereFragmentListen();
+        befuelleListen();
 
-        // Schleife laeuft solange, bsi die Fragmentliste voll ist
-        do{
-            System.out.println("\nGeben Sie die Laenge eines Fragments fuer " + listenName + " ein:");
-            int fragmentLaenge = in.nextInt();
+        if(!pruefeFragmentlaengen()){
+            throw new Exception("Die Summen aller Fragmente in allen Listen muessen identisch sein!");
+        }
 
-            if(fragmentLaenge <= 0){
-                System.out.println("Versuchen Sie es bitte noch einmal. Nur positive Zahlen sind erlaubt.");
-            }else{
-                System.out.println("Okay.");
-                fragmentListe.add(fragmentLaenge);
-                listenLaenge--;
-            }
-        }while(listenLaenge > 0);
+        Collection<List<Integer>> permutationenA = permutations(fragmentListeA);
+        Collection<List<Integer>> permutationenB = permutations(fragmentListeB);
+
+        auswertungDoubleDigest(permutationenA, permutationenB);
+
+        ausgabeFragmentListe(fragmentListeA, "A");
+        ausgabeFragmentListe(fragmentListeB, "B");
+        ausgabeFragmentListe(fragmentListeAB, "AB");
+
+        ausgabeFragmentreihenfolgen(gueltigeKombisA, "A", "gueltig");
+        ausgabeFragmentreihenfolgen(gueltigeKombisB, "B", "gueltig");
+
+        ausgabeFragmentreihenfolgen(ungueltigeKombisA, "A", "ungueltig");
+        ausgabeFragmentreihenfolgen(ungueltigeKombisB, "B", "ungueltig");
+
+        ausgabeAnzahlGueltigerUndUngueltigerKombis();
     }
 
+    //<editor-fold desc="Listeniniziierung und -sortierung">
     /**
      * Befuellung der Listen
      */
@@ -102,19 +110,6 @@ public class DoubleDigestProblem{
     }
 
     /**
-     * Sortiert die Fragmentlisten nach ihrer Befuellung
-     */
-    public static void sortiereFragmentListen(){
-        befuelleListenMitBenutzereingaben(fragmentListeA, "A");
-        befuelleListenMitBenutzereingaben(fragmentListeB, "B");
-        befuelleListenMitBenutzereingaben(fragmentListeAB, "AB");
-
-        Collections.sort(fragmentListeA);
-        Collections.sort(fragmentListeB);
-        Collections.sort(fragmentListeAB);
-    }
-
-    /**
      * Prueft, ob die Summen aller Fragmente in allen Listen gleich sind
      *
      * @return Liefert true, wenn alle Summen gleich sind
@@ -133,38 +128,9 @@ public class DoubleDigestProblem{
 
         return alleSummenGleich;
     }
+    //</editor-fold>
 
-    /**
-     * Gibt eine Fragmentliste aus
-     *
-     * @param fragmentListe Fragmentliste die ausgegeben werden soll
-     * @param listenName Name der fragment liste
-     */
-    public static void ausgabeFragmentListe(List<Integer> fragmentListe, String listenName){
-        System.out.print("\nFragmente von " + listenName + ": (");
-        for(int fragment : fragmentListe) {
-            System.out.print(fragment + ", ");
-        }
-        System.out.print(")");
-    }
-
-    /**
-     * Gibt alle moeglichen Reihenfolgen der Fragmentlaengen einer Liste aus
-     * @param permutationen Liste von allen Permutationen
-     * @param listenName Name der Liste
-     */
-    public static void ausgabeAllerFragmentreihenfolgen(Collection<List<Integer>> permutationen, String listenName){
-        System.out.print("\n\nAnzahl gueltiger Fragment-Reihenfolgen fuer " + listenName + ": " + permutationen.size());
-        int nummerReihenfolge = 1;
-        for(List<Integer> permutation : permutationen){
-            System.out.print("\n" + nummerReihenfolge + ". Fragment-Reihenfolge " + listenName + " = (");
-            for(int fragment : permutation) {
-                System.out.print(fragment + ", ");
-            }
-            System.out.print(").");
-        }
-    }
-
+    //<editor-fold desc="Methoden, welche das Double Digest Problem loesen">
     /**
      * Tragt die Schnittpositionen eines Enzyms ein.
      * @param schnittpositionen Liste der markierten Schnittpositionen.
@@ -271,6 +237,107 @@ public class DoubleDigestProblem{
             }
         }
     }
+    //</editor-fold>
+
+    //<editor-fold desc="Ausgabemethoden">
+    /**
+     * Gibt eine Fragmentliste aus
+     *
+     * @param fragmentListe Fragmentliste die ausgegeben werden soll
+     * @param listenName Name der fragment liste
+     */
+    public static void ausgabeFragmentListe(List<Integer> fragmentListe, String listenName){
+        System.out.print("\nFragmente von " + listenName + ": (");
+        for(int fragment : fragmentListe) {
+            System.out.print(fragment + ", ");
+        }
+        System.out.print(")");
+    }
+
+    /**
+     * Gibt Reihenfolgen der Fragmentlaengen einer Liste aus
+     * @param fragmentListen Liste von Fragmentlisten
+     * @param listenName Name der Liste
+     * @param listenArt Gibt an ob es eine Liste gueltiger oder ungueltiger Reihenfolgen ist
+     */
+    public static void ausgabeFragmentreihenfolgen(ArrayList<List<Integer>> fragmentListen, String listenName, String listenArt){
+        System.out.print("\n\nAnzahl " + listenArt + "er Fragment-Reihenfolgen fuer " + listenName + ": " + fragmentListen.size());
+        int nummerReihenfolge = 1;
+        for(List<Integer> fragmentreihe : fragmentListen){
+            System.out.print("\n" + nummerReihenfolge + ". Fragment-Reihenfolge " + listenName + " = (");
+            for(int fragment : fragmentreihe) {
+                System.out.print(fragment + ", ");
+            }
+            System.out.print(").");
+
+            nummerReihenfolge++;
+        }
+    }
+
+    /**
+     * Gibt die Anzahl aller gueltiger und ungueltiger Kombinationen aus
+     */
+    public static void ausgabeAnzahlGueltigerUndUngueltigerKombis(){
+        System.out.println("\n\nAnzahl der gueltigen Kombinationen: " + gueltigeSchnittpositionenA.size());
+        System.out.println("Anzahl der ungueltigen Kombinationen: " + ungueltigeKombisA.size());
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Wahrscheinlich nicht mehr gebrauchte Methoden">
+    /**
+     * Befuellt eine Fragmentliste mit Benutzereingaben.
+     *
+     * @param fragmentListe Fragmentliste die befuellt werden soll
+     * @param listenName Name der Fragmentliste
+     */
+    public static void befuelleListenMitBenutzereingaben(List<Integer> fragmentListe, String listenName){
+        System.out.println("\nWie viele Fragmente für Liste " + listenName + "?");
+        int listenLaenge = in.nextInt();
+
+        // Schleife laeuft solange, bsi die Fragmentliste voll ist
+        do{
+            System.out.println("\nGeben Sie die Laenge eines Fragments fuer " + listenName + " ein:");
+            int fragmentLaenge = in.nextInt();
+
+            if(fragmentLaenge <= 0){
+                System.out.println("Versuchen Sie es bitte noch einmal. Nur positive Zahlen sind erlaubt.");
+            }else{
+                System.out.println("Okay.");
+                fragmentListe.add(fragmentLaenge);
+                listenLaenge--;
+            }
+        }while(listenLaenge > 0);
+    }
+
+    /**
+     * Sortiert die Fragmentlisten nach ihrer Befuellung
+     */
+    public static void sortiereFragmentListen(){
+        befuelleListenMitBenutzereingaben(fragmentListeA, "A");
+        befuelleListenMitBenutzereingaben(fragmentListeB, "B");
+        befuelleListenMitBenutzereingaben(fragmentListeAB, "AB");
+
+        Collections.sort(fragmentListeA);
+        Collections.sort(fragmentListeB);
+        Collections.sort(fragmentListeAB);
+    }
+
+    /**
+     * Gibt alle moeglichen Reihenfolgen der Fragmentlaengen einer Liste aus
+     * @param permutationen Liste von allen Permutationen
+     * @param listenName Name der Liste
+     */
+    public static void ausgabeAllerFragmentreihenfolgen(Collection<List<Integer>> permutationen, String listenName){
+        System.out.print("\n\nAnzahl gueltiger Fragment-Reihenfolgen fuer " + listenName + ": " + permutationen.size());
+        int nummerReihenfolge = 1;
+        for(List<Integer> permutation : permutationen){
+            System.out.print("\n" + nummerReihenfolge + ". Fragment-Reihenfolge " + listenName + " = (");
+            for(int fragment : permutation) {
+                System.out.print(fragment + ", ");
+            }
+            System.out.print(").");
+        }
+    }
 
     /**
      * Gibt alle gueltige Kombinationen aus
@@ -353,42 +420,5 @@ public class DoubleDigestProblem{
             System.out.print(")\n");
         }
     }
-
-    /**
-     * Gibt die Anzahl aller gueltiger und ungueltiger Kombinationen aus
-     */
-    public static void ausgabeAnzahlGueltigerUndUngueltigerKombis(){
-        System.out.println("\nAnzahl der gueltigen Kombinationen: " + gueltigeSchnittpositionenA.size());
-        System.out.println("Anzahl der ungueltigen Kombinationen: " + ungueltigeKombisA.size());
-    }
-
-    /**
-     * Hauptprogramm
-     *
-     * @param args Kommandozeilenargumente
-     */
-    public static void main(String[] args) throws Exception {
-        sortiereFragmentListen();
-        //befuelleListen();
-
-        if(!pruefeFragmentlaengen()){
-            throw new Exception("Die Summen aller Fragmente in allen Listen muessen identisch sein!");
-        }
-
-        Collection<List<Integer>> permutationenA = permutations(fragmentListeA);
-        Collection<List<Integer>> permutationenB = permutations(fragmentListeB);
-
-        ausgabeAllerFragmentreihenfolgen(permutationenA, "A");
-        ausgabeAllerFragmentreihenfolgen(permutationenB, "B");
-
-        auswertungDoubleDigest(permutationenA, permutationenB);
-
-        ausgabeFragmentListe(fragmentListeA, "A");
-        ausgabeFragmentListe(fragmentListeB, "B");
-        ausgabeFragmentListe(fragmentListeAB, "AB");
-
-        ausgabeGueltigerKombinationen();
-        //ausgabeUngueltigerKombinationen();
-        ausgabeAnzahlGueltigerUndUngueltigerKombis();
-    }
+    //</editor-fold>
 }
